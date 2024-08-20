@@ -12,18 +12,25 @@ const fieldsSchema: FormFields<LoginFormValues> = {
     label: "Name",
     type: "text",
     defaultValue: "",
+    validation: {
+      required: true,
+    }
   },
   phoneNo: {
     id: "phoneNo",
     label: "Phone",
     type: "number",
     defaultValue: 0,
+    validation: {
+      required: true,
+    }
   },
 };
 
 function App() {
-  const { fieldState, onChange } = useForm(fieldsSchema);
+  const { fieldState, onChange, validate } = useForm(fieldsSchema);
   const handleSubmit = () => {
+    validate("name");
     console.log(fieldState);
   };
   return (
