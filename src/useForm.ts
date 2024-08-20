@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react";
-
-type ValidationsKeys = "required" | "max" | string;
-type ValidationFn<T> = (value: T) => string
-type ValidationObject<V> = boolean | number | ValidationFn<V>
-
-type Validations<V> = Record<ValidationsKeys, ValidationObject<V>>
+import { validationCheck, Validations } from "./validationCheck";
 
 export type FormField<T extends object> = {
   id: keyof T;
@@ -24,15 +19,26 @@ type ChangeParams<T extends object> = {
 export const useForm = <T extends object>(formFields: FormFields<T>) => {
   const [fieldState, setFieldState] = useState<Partial<T>>({});
 
-  const validateSingleField = ({fieldForValidation, value}: {
+  const validateSingleField = ({ fieldForValidation, value }: {
     fieldForValidation: keyof T,
     value?: T[keyof T],
   }) => {
     const field = formFields[fieldForValidation];
-    console.log(value, fieldForValidation, field)
+    const keysForValidation = Object.keys(field.validation);
+    for (let i = 0; i < keysForValidation.length; i++) {
+      const validationMsg = validationCheck({
+        name: field.label,
+        value,
+        type: keysForValidation[i], 
+      })
+      if(validationMsg) {
+        console.log(validationMsg);
+        break;
+      }
+    }
   }
   const validate = (field: keyof T) => {
-    validateSingleField({fieldForValidation :field, value: fieldState[field]})
+    validateSingleField({ fieldForValidation: field, value: fieldState[field] })
   }
   useEffect(() => {
     const newFieldState: Partial<T> = {};
