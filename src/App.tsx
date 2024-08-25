@@ -1,9 +1,18 @@
-import { Button, Container, FormControl, FormLabel, Input, Text, VStack } from "@chakra-ui/react";
+import {
+  Button,
+  Container,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  Input,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
 import { FormFields, useForm } from "./useForm";
 
 type LoginFormValues = {
   name: string;
-  phoneNo: number;
+  numLT: number;
 };
 
 const fieldsSchema: FormFields<LoginFormValues> = {
@@ -14,24 +23,26 @@ const fieldsSchema: FormFields<LoginFormValues> = {
     defaultValue: "",
     validation: {
       required: true,
-    }
+    },
   },
-  phoneNo: {
-    id: "phoneNo",
-    label: "Phone",
+  numLT: {
+    id: "numLT",
+    label: "Number less than 10",
     type: "number",
     defaultValue: 0,
     validation: {
       required: true,
-    }
+      max: 10,
+    },
   },
 };
 
 function App() {
-  const { fieldState, onChange, validate } = useForm(fieldsSchema);
+  const { fieldState, errorState, onChange, validate } = useForm(fieldsSchema);
   const handleSubmit = () => {
-    validate("name");
-    console.log(fieldState);
+    if (!validate()) {
+      return;
+    }
   };
   return (
     <Container maxW='container.lg'>
@@ -42,7 +53,9 @@ function App() {
         gap={2}
         align='flex-start'>
         {Object.values(fieldsSchema).map((value) => (
-          <FormControl key={value.id}>
+          <FormControl
+            isInvalid={!!errorState[value.id]}
+            key={value.id}>
             <FormLabel htmlFor={value.id}>{value.label}</FormLabel>
             <Input
               id={value.id}
@@ -51,6 +64,7 @@ function App() {
               defaultValue={value.defaultValue || ""}
               onChange={(event) => onChange({ fieldId: value.id, value: event.target.value })}
             />
+            {!!errorState[value.id] && <FormHelperText>{errorState[value.id]}</FormHelperText>}
           </FormControl>
         ))}
         <Button onClick={handleSubmit}>Submit</Button>
